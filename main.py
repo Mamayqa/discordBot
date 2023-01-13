@@ -103,16 +103,16 @@ async def play(ctx, url):
     if not ctx.message.author.name == "Мамий Алий":
         await ctx.send('NOT AUTHORISED!')
         return
-    # try:
-    server = ctx.message.guild
-    voice_channel = server.voice_client
+    try:
+        server = ctx.message.guild
+        voice_channel = server.voice_client
 
-    async with ctx.typing():
-        filename = await YTDLSource.from_url(url, loop=bot.loop)
-        voice_channel.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename))
-    await ctx.send('**Now playing:** {}'.format(filename))
-    # except:
-    #     await ctx.send("The bot is not connected to a voice channel.")
+        async with ctx.typing():
+            filename = await YTDLSource.from_url(url, loop=bot.loop)
+            voice_channel.play(discord.FFmpegPCMAudio(source=filename))
+        await ctx.send('**Now playing:** {}'.format(filename))
+    except:
+        await ctx.send("The bot is not connected to a voice channel.")
 
 
 @bot.command(name='join', help='Tells the bot to join the voice channel')
