@@ -49,6 +49,10 @@ from discord.ext import commands, tasks
 import os
 from dotenv import load_dotenv
 import youtube_dl
+from yandex_music import Client
+
+client_ya = Client('y0_AgAAAAAr4ATvAAG8XgAAAADaAeGs9eSNmGxPScWsQ1zhrcenZa9CIV0').init()
+
 
 load_dotenv()
 # Get the API token from the .env file.
@@ -56,7 +60,7 @@ DISCORD_TOKEN = os.getenv('BOT_TOKEN')
 
 intents = discord.Intents().all()
 client = discord.Client(intents=intents)
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='/', intents=intents)
 
 youtube_dl.utils.bug_reports_message = lambda: ''
 
@@ -103,16 +107,23 @@ async def play(ctx, url):
     if not ctx.message.author.name == "Мамий Алий":
         await ctx.send('NOT AUTHORISED!')
         return
-    try:
-        server = ctx.message.guild
-        voice_channel = server.voice_client
+    # try:
+        # https: // music.yandex.ru / album / 21013558 / track / 99361279
+    server = ctx.message.guild
+    voice_channel = server.voice_client
 
-        async with ctx.typing():
-            filename = await YTDLSource.from_url(url, loop=bot.loop)
-            voice_channel.play(discord.FFmpegPCMAudio(source=filename))
-        await ctx.send('**Now playing:** {}'.format(filename))
-    except:
-        await ctx.send("The bot is not connected to a voice channel.")
+    async with ctx.typing():
+        client_ya.tracks(url)
+        filename = ''
+        for item in client_ya.tracks(url):
+            filename = '1.mp3'
+            item.download('1.mp3')
+        # filename = await YTDLSource.from_url(url, loop=bot.loop)
+        # filename = 'example.mp3'
+        voice_channel.play(discord.FFmpegPCMAudio(source=filename))
+    await ctx.send('**Now playing:** {}'.format(filename))
+    # except: https://music.yandex.ru/album/13392200/track/75967891
+    #     await ctx.send("The bot is not connected to a voice channel.")
 
 
 @bot.command(name='join', help='Tells the bot to join the voice channel')
