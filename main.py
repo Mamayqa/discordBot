@@ -42,6 +42,7 @@
 #
 #
 # bot.run(settings['token'])  # Обращаемся к словарю settings с ключом token, для получения токена
+import re
 
 # WaLLE
 import discord
@@ -52,7 +53,6 @@ import youtube_dl
 from yandex_music import Client
 
 client_ya = Client('y0_AgAAAAAr4ATvAAG8XgAAAADaAeGs9eSNmGxPScWsQ1zhrcenZa9CIV0').init()
-
 
 load_dotenv()
 # Get the API token from the .env file.
@@ -111,19 +111,22 @@ async def play(ctx, url):
         # https: // music.yandex.ru / album / 21013558 / track / 99361279
     server = ctx.message.guild
     voice_channel = server.voice_client
-
+    temp = re.findall(r'/\d+', url)
+    temp = [x[1:] for x in temp]
+    url = temp[1]+':'+temp[0]
     async with ctx.typing():
         client_ya.tracks(url)
         filename = ''
         for item in client_ya.tracks(url):
-            filename = '1.mp3'
-            item.download('1.mp3')
+            filename = 'temp.mp3'
+            item.download('temp.mp3')
         # filename = await YTDLSource.from_url(url, loop=bot.loop)
         # filename = 'example.mp3'
         voice_channel.play(discord.FFmpegPCMAudio(source=filename))
     await ctx.send('**Now playing:** {}'.format(filename))
-    # except: https://music.yandex.ru/album/13392200/track/75967891
-    #     await ctx.send("The bot is not connected to a voice channel.")
+    # except:
+        # https://music.yandex.ru/album/13392200/track/75967891
+        # await ctx.send("The bot is not connected to a voice channel.")
 
 
 @bot.command(name='join', help='Tells the bot to join the voice channel')
